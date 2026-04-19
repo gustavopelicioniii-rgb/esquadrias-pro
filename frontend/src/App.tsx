@@ -12,6 +12,7 @@ import Financial from './pages/Financial';
 import Inventory from './pages/Inventory';
 import Calculator from './pages/Calculator';
 import Materials from './pages/Materials';
+import Production from './pages/Production';
 
 // Ícones
 import { 
@@ -75,6 +76,7 @@ function App() {
     { id: 'calculator', label: 'Calculadora', icon: CalcIcon },
     { id: 'budgets', label: 'Orçamentos', icon: FileText },
     { id: 'orders', label: 'Pedidos', icon: ShoppingCart },
+    { id: 'production', label: 'Produção', icon: ShoppingCart },
     { id: 'financial', label: 'Financeiro', icon: DollarSign },
     { id: 'inventory', label: 'Estoque', icon: Box },
   ];
@@ -88,6 +90,7 @@ function App() {
       case 'calculator': return <Calculator />;
       case 'budgets': return <Budgets />;
       case 'orders': return <Orders />;
+      case 'production': return <Production />;
       case 'financial': return <Financial />;
       case 'inventory': return <Inventory />;
       default: return <Dashboard />;

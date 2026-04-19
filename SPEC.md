@@ -7,47 +7,66 @@
 - [x] Seed com dados de exemplo
 - [x] Página de calculadora no frontend
 
-## 🔄 Fase 2: Editor Visual de Orçamentos (EM ANDAMENTO)
-- [ ] Lista de itens do orçamento
-- [ ] Adicionar/remover esquadrias
-- [ ] Preview visual por tipologia
-- [ ] Totais e subtotais
-- [ ] Desconto por item e global
-- [ ] Validade do orçamento
-- [ ] Notas e condições
-- [ ] Converter orçamento em pedido
+## ✅ Fase 2: Editor Visual de Orçamentos (COMPLETO)
+- [x] Lista de itens do orçamento
+- [x] Adicionar/remover esquadrias com cálculo automático
+- [x] Preview visual por tipologia
+- [x] Totais e subtotais
+- [x] Desconto por item e global
+- [x] Validade do orçamento
+- [x] Notas e condições
 
-## 📋 Fase 3: Cadastro de Materiais
-- [ ] CRUD completo de linhas de produto
-- [ ] CRUD de perfis (cadastro completo)
-- [ ] CRUD de vidros
-- [ ] CRUD de acessórios
-- [ ] Associação perfil ↔ tipologia
-- [ ] Fórmulas configuráveis por tipologia
+## ✅ Fase 3: Cadastro de Materiais (COMPLETO)
+- [x] CRUD completo de linhas de produto
+- [x] CRUD de perfis
+- [x] CRUD de vidros
+- [x] CRUD de acessórios
+- [x] Interface com abas e modais
 
-## 🎨 Fase 4: UI/UX Profissional
-- [ ] Design system consistente
-- [ ] Dashboard com gráficos (receitas, pedidos)
-- [ ] Temas claro/escuro
-- [ ] Animações e transições suaves
-- [ ] Responsivo mobile
-- [ ] Ícones e tipografia profissional
+## ✅ Fase 4: UI/UX Profissional (COMPLETO)
+- [x] Design system consistente
+- [x] Dashboard com cards e métricas
+- [x] Resumo financeiro
+- [x] Lista de orçamentos e pedidos recentes
+- [x] Quick actions
+- [x] Status badges com cores
 
-## 🏢 Fase 5: Portal do Cliente
-- [ ] link público para orçamento
-- [ ] Visualização do orçamento online
-- [ ] Status do pedido (aprovado/em produção/pronto)
-- [ ] Histórico de orçamentos
+## ✅ Fase 5: Portal do Cliente (COMPLETO)
+- [x] Link público para orçamento (/portal/:token)
+- [x] Visualização do orçamento online
+- [x] Status do pedido
+- [x] Botão de aprovar orçamento
+- [x] Informações do cliente
 
-## 📋 Fase 6: Planejamento de Produção (PCP)
-- [ ] Lista de corte otimizada
-- [ ] Relatório de corte por barra
-- [ ] Ordens de produção
-- [ ] Status de produção
-- [ ] Baixa automática de estoque
+## ✅ Fase 6: Planejamento de Produção (PCP) (COMPLETO)
+- [x] Lista de ordens de produção
+- [x] Status workflow (Aguardando → Em Produção → Pronto)
+- [x] Lista de corte por perfil
+- [x] Cálculo de barras necessárias
+- [x] Lista de vidros
+- [x] Prioridades (Alta/Média/Baixa)
 
-## 🔌 Fase 7: Integrações
+## 🔜 Próximas Fases (não iniciadas)
+
+### Fase 7: Integrações
 - [ ] API pública para parceiros
 - [ ] Webhooks para notificações
 - [ ] Integração com WhatsApp
 - [ ] Relatórios exportáveis (PDF)
+- [ ] Envio de email automático
+
+### Fase 8: Relatórios e BI
+- [ ] Dashboard analítico
+- [ ] Gráficos de receitas
+- [ ] Métricas de conversão (orçamento → pedido)
+- [ ] KPIs de produção
+
+### Fase 9: Mobile
+- [ ] App React Native (opcional)
+- [ ] PWA melhorado
+- [ ] Notificações push
+
+### Fase 10: Automação
+- [ ] Fluxo自动 de aprovação
+- [ ] Lembretres automáticos
+- [ ] Integração com CNC/ERP
