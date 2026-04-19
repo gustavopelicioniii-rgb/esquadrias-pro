@@ -39,234 +39,192 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando...</p>
-        </div>
+      <div className="flex items-center justify-center" style={{ padding: '80px 0' }}>
+        <div className="spinner"></div>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-center text-gray-500">
-          <div className="text-5xl mb-4">📊</div>
-          <p>Erro ao carregar dados</p>
-        </div>
+      <div className="empty-state">
+        <div className="empty-state-icon">📊</div>
+        <h3 className="empty-state-title">Erro ao carregar</h3>
+        <p className="empty-state-text">Tente novamente mais tarde</p>
       </div>
     );
   }
 
-  const kpis = [
-    {
-      label: 'Clientes',
-      value: data.clients,
-      icon: '👥',
-      color: 'blue',
-      change: '+12%',
-      positive: true
-    },
-    {
-      label: 'Orçamentos',
-      value: data.budgets.total,
-      sublabel: `${data.budgets.approved} aprovados`,
-      icon: '📋',
-      color: 'purple',
-      value2: `R$ ${(data.budgets.value / 1000).toFixed(1)}k`
-    },
-    {
-      label: 'Pedidos',
-      value: data.orders.total,
-      icon: '📦',
-      color: 'green',
-      value2: `R$ ${(data.orders.value / 1000).toFixed(1)}k`
-    },
-    {
-      label: 'Faturamento',
-      value: `R$ ${(data.financial.income / 1000).toFixed(1)}k`,
-      icon: '💰',
-      color: 'emerald',
-      change: '+8%',
-      positive: true
-    }
-  ];
+  const statusConfig: Record<string, string> = {
+    DRAFT: 'Rascunho',
+    SENT: 'Enviado',
+    APPROVED: 'Aprovado',
+    REJECTED: 'Rejeitado',
+    PENDING: 'Pendente',
+    IN_PRODUCTION: 'Em Produção',
+    READY: 'Pronto',
+    COMPLETED: 'Concluído',
+  };
 
-  const statusConfig: Record<string, { bg: string; text: string }> = {
-    DRAFT: { bg: '#F0F2F5', text: '#718096' },
-    SENT: { bg: '#E3F2FD', text: '#1976D2' },
-    APPROVED: { bg: '#E8F5E9', text: '#388E3C' },
-    REJECTED: { bg: '#FFEBEE', text: '#D32F2F' },
-    PENDING: { bg: '#FFF3E0', text: '#F57C00' },
-    IN_PRODUCTION: { bg: '#E3F2FD', text: '#1976D2' },
-    READY: { bg: '#E8F5E9', text: '#388E3C' },
-    COMPLETED: { bg: '#F5F5F5', text: '#616161' }
+  const statusStyle: Record<string, { bg: string; color: string }> = {
+    DRAFT: { bg: '#F4F7FE', color: '#A3AED0' },
+    SENT: { bg: '#E6F2FF', color: '#0070E0' },
+    APPROVED: { bg: '#E6FAF5', color: '#00A67E' },
+    REJECTED: { bg: '#FEEFEE', color: '#EE5D50' },
+    PENDING: { bg: '#FFF5E6', color: '#CC8400' },
+    IN_PRODUCTION: { bg: '#E6F2FF', color: '#0070E0' },
+    READY: { bg: '#E6FAF5', color: '#00A67E' },
+    COMPLETED: { bg: '#F4F7FE', color: '#A3AED0' },
   };
 
   return (
     <div className="animate-fadeIn">
       {/* Saudação */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">
+      <div className="mb-4">
+        <h2 className="text-2xl font-bold" style={{ color: '#1B2559' }}>
           Olá, bom dia! 👋
         </h2>
-        <p className="text-gray-600 mt-1">
+        <p className="text-sm mt-1" style={{ color: '#A3AED0' }}>
           {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
         </p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="kpi-grid mb-8">
-        {kpis.map((kpi, i) => (
-          <div key={i} className={`kpi-card ${kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' ? 'primary' : ''}`}
-            style={{
-              background: kpi.color === 'blue' ? 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)' :
-                         kpi.color === 'purple' ? 'linear-gradient(135deg, #7E57C2 0%, #5E35B1 100%)' :
-                         kpi.color === 'emerald' ? 'linear-gradient(135deg, #26A69A 0%, #00897B 100%)' :
-                         kpi.color === 'green' ? 'linear-gradient(135deg, #66BB6A 0%, #43A047 100%)' : '#FFFFFF',
-              ...(kpi.color !== 'blue' && kpi.color !== 'purple' && kpi.color !== 'emerald' && kpi.color !== 'green' ? { 
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' 
-              } : {})
-            }}
-          >
-            <div className="kpi-icon" style={{
-              background: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green' 
-                ? 'rgba(255,255,255,0.2)' 
-                : '#F5F7FA'
-            }}>
-              {kpi.icon}
-            </div>
-            <div className="kpi-label" style={{
-              color: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green'
-                ? 'rgba(255,255,255,0.8)'
-                : '#718096'
-            }}>
-              {kpi.label}
-            </div>
-            <div className="kpi-value" style={{
-              color: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green'
-                ? '#FFFFFF'
-                : '#1A202C'
-            }}>
-              {kpi.value}
-            </div>
-            {kpi.sublabel && (
-              <div className="text-sm mt-1" style={{
-                color: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green'
-                  ? 'rgba(255,255,255,0.7)'
-                  : '#718096'
-              }}>
-                {kpi.sublabel}
-              </div>
-            )}
-            {kpi.value2 && (
-              <div className="text-lg font-semibold mt-1" style={{
-                color: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green'
-                  ? 'rgba(255,255,255,0.9)'
-                  : '#1A202C'
-              }}>
-                {kpi.value2}
-              </div>
-            )}
-            {kpi.change && (
-              <div className={`kpi-change ${kpi.positive ? 'positive' : 'negative'}`} style={{
-                background: kpi.positive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.2)',
-                color: '#FFFFFF'
-              }}>
-                {kpi.positive ? '↑' : '↓'} {kpi.change}
-              </div>
-            )}
+      {/* KPI Cards - Grid 4 colunas */}
+      <div className="grid grid-4 mb-4">
+        {/* Vendas - Card Azul Gradiente */}
+        <div className="card kpi-card blue" style={{ padding: '24px' }}>
+          <div className="kpi-card-icon">📈</div>
+          <div className="kpi-label">Clientes</div>
+          <div className="kpi-value">{data.clients}</div>
+          <div className="kpi-change positive">+12%</div>
+        </div>
+
+        {/* Obras Entregues */}
+        <div className="card kpi-card">
+          <div className="kpi-card-icon">🏠</div>
+          <div className="kpi-label">ORÇAMENTOS</div>
+          <div className="kpi-value">{data.budgets.total}</div>
+          <div className="kpi-change up">↑ 8%</div>
+        </div>
+
+        {/* Propostas */}
+        <div className="card kpi-card">
+          <div className="kpi-card-icon">📋</div>
+          <div className="kpi-label">PEDIDOS</div>
+          <div className="kpi-value">{data.orders.total}</div>
+          <div className="kpi-change up">↑ 5%</div>
+        </div>
+
+        {/* Carteira */}
+        <div className="card kpi-card">
+          <div className="kpi-card-icon">💰</div>
+          <div className="kpi-label">FATURAMENTO</div>
+          <div className="kpi-value" style={{ fontSize: '20px' }}>
+            R$ {(data.financial.income / 1000).toFixed(1)}k
           </div>
-        ))}
+          <div className="kpi-change up">↑ 3%</div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      {/* Grid 2 colunas */}
+      <div className="grid grid-2 mb-4">
         {/* Resumo Financeiro */}
-        <div className="card">
+        <div className="card" style={{ padding: '24px' }}>
           <div className="card-header">
             <h3 className="card-title">💳 Resumo Financeiro</h3>
+            <span className="card-action">Ver mais →</span>
           </div>
-          <div className="card-body space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: '#E8F5E9' }}>
+          
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#E6FAF5' }}>
               <div>
-                <p className="text-sm font-medium" style={{ color: '#2E7D32' }}>Receitas</p>
-                <p className="text-xl font-bold" style={{ color: '#1B5E20' }}>
+                <p className="text-xs font-semibold" style={{ color: '#00A67E' }}>Receitas</p>
+                <p className="text-lg font-bold" style={{ color: '#00A67E' }}>
                   R$ {data.financial.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
               </div>
-              <span className="text-2xl">📈</span>
+              <span style={{ fontSize: '24px' }}>📈</span>
             </div>
             
-            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: '#FFEBEE' }}>
+            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#FEEFEE' }}>
               <div>
-                <p className="text-sm font-medium" style={{ color: '#C62828' }}>Despesas</p>
-                <p className="text-xl font-bold" style={{ color: '#B71C1C' }}>
+                <p className="text-xs font-semibold" style={{ color: '#EE5D50' }}>Despesas</p>
+                <p className="text-lg font-bold" style={{ color: '#EE5D50' }}>
                   R$ {data.financial.expenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
               </div>
-              <span className="text-2xl">📉</span>
+              <span style={{ fontSize: '24px' }}>📉</span>
             </div>
             
-            <div className="flex items-center justify-between p-4 rounded-xl border-2" style={{ background: '#E3F2FD', borderColor: '#1976D2' }}>
+            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#E6F2FF', border: '2px solid #0070E0' }}>
               <div>
-                <p className="text-sm font-medium" style={{ color: '#1976D2' }}>Lucro</p>
-                <p className="text-2xl font-bold" style={{ color: '#0D47A1' }}>
+                <p className="text-xs font-semibold" style={{ color: '#0070E0' }}>Lucro</p>
+                <p className="text-xl font-bold" style={{ color: '#0070E0' }}>
                   R$ {data.financial.profit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
               </div>
-              <span className="text-3xl">💵</span>
+              <span style={{ fontSize: '28px' }}>💵</span>
             </div>
             
-            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: '#FFF8E1' }}>
+            <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#FFF5E6' }}>
               <div>
-                <p className="text-sm font-medium" style={{ color: '#F57C00' }}>A Receber</p>
-                <p className="text-lg font-bold" style={{ color: '#E65100' }}>
+                <p className="text-xs font-semibold" style={{ color: '#CC8400' }}>A Receber</p>
+                <p className="text-base font-bold" style={{ color: '#CC8400' }}>
                   R$ {data.financial.pendingReceivable.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
               </div>
-              <span className="text-2xl">⏳</span>
+              <span style={{ fontSize: '24px' }}>⏳</span>
             </div>
           </div>
         </div>
 
         {/* Últimos Orçamentos */}
-        <div className="card lg:col-span-2">
-          <div className="card-header">
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className="card-header" style={{ padding: '20px 24px', borderBottom: '1px solid #E2E8F0' }}>
             <h3 className="card-title">📋 Últimos Orçamentos</h3>
-            <button className="btn btn-sm btn-ghost">Ver todos →</button>
+            <span className="card-action">Ver todos →</span>
           </div>
-          <div className="divide-y" style={{ borderColor: '#E2E8F0' }}>
+          
+          <div>
             {recentBudgets.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                <div className="text-4xl mb-2">📋</div>
-                <p>Nenhum orçamento ainda</p>
+              <div className="empty-state" style={{ padding: '40px 20px' }}>
+                <div className="empty-state-icon">📋</div>
+                <h3 className="empty-state-title">Nenhum orçamento</h3>
               </div>
-            ) : recentBudgets.map(b => (
-              <div key={b.id} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl" style={{ background: '#E3F2FD' }}>
+            ) : recentBudgets.map((b) => (
+              <div 
+                key={b.id} 
+                className="flex items-center justify-between p-4"
+                style={{ borderBottom: '1px solid #E2E8F0' }}
+              >
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="flex items-center justify-center rounded-lg"
+                    style={{ width: '44px', height: '44px', background: '#F4F7FE', fontSize: '20px' }}
+                  >
                     📄
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">{b.number}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-semibold text-sm" style={{ color: '#1B2559' }}>{b.number}</p>
+                    <p className="text-xs" style={{ color: '#A3AED0' }}>
                       {b.client?.name || 'Sem cliente'} • {format(new Date(b.createdAt), 'dd/MM/yyyy')}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-gray-900">
+                  <p className="font-bold text-sm" style={{ color: '#1B2559' }}>
                     R$ {Number(b.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                   <span 
-                    className="status-pill info text-xs"
-                    style={{
-                      background: statusConfig[b.status]?.bg || '#F0F2F5',
-                      color: statusConfig[b.status]?.text || '#718096'
+                    className="status-pill"
+                    style={{ 
+                      background: statusStyle[b.status]?.bg || '#F4F7FE',
+                      color: statusStyle[b.status]?.color || '#A3AED0',
+                      fontSize: '9px',
+                      padding: '3px 8px'
                     }}
                   >
-                    {b.status}
+                    {statusConfig[b.status] || b.status}
                   </span>
                 </div>
               </div>
@@ -275,12 +233,13 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Pedidos Recentes */}
-      <div className="card">
-        <div className="card-header">
+      {/* Tabela de Pedidos */}
+      <div className="card" style={{ padding: 0 }}>
+        <div className="card-header" style={{ padding: '20px 24px', borderBottom: '1px solid #E2E8F0' }}>
           <h3 className="card-title">🚚 Pedidos em Andamento</h3>
-          <button className="btn btn-sm btn-ghost">Ver todos →</button>
+          <span className="card-action">Ver todos →</span>
         </div>
+        
         <div className="table-container" style={{ boxShadow: 'none', borderRadius: 0 }}>
           <table className="table">
             <thead>
@@ -295,12 +254,12 @@ export default function Dashboard() {
             <tbody>
               {recentOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-8 text-gray-500">
-                    <div className="text-4xl mb-2">📦</div>
-                    <p>Nenhum pedido ainda</p>
+                  <td colSpan={5} className="text-center" style={{ padding: '40px' }}>
+                    <div className="empty-state-icon">📦</div>
+                    <p className="empty-state-title mt-2">Nenhum pedido</p>
                   </td>
                 </tr>
-              ) : recentOrders.map(o => (
+              ) : recentOrders.map((o) => (
                 <tr key={o.id}>
                   <td className="font-semibold">{o.number}</td>
                   <td>{o.client?.name || 'Sem cliente'}</td>
@@ -310,15 +269,15 @@ export default function Dashboard() {
                   <td>
                     <span 
                       className="status-pill"
-                      style={{
-                        background: statusConfig[o.status]?.bg || '#F0F2F5',
-                        color: statusConfig[o.status]?.text || '#718096'
+                      style={{ 
+                        background: statusStyle[o.status]?.bg || '#F4F7FE',
+                        color: statusStyle[o.status]?.color || '#A3AED0'
                       }}
                     >
-                      {o.status === 'IN_PRODUCTION' ? 'Em Produção' : o.status}
+                      {statusConfig[o.status] || o.status}
                     </span>
                   </td>
-                  <td className="text-gray-500">
+                  <td style={{ color: '#A3AED0' }}>
                     {o.deliveryDate ? format(new Date(o.deliveryDate), 'dd/MM/yyyy') : '-'}
                   </td>
                 </tr>
@@ -326,31 +285,6 @@ export default function Dashboard() {
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        {[
-          { icon: '🧮', label: 'Calculadora', desc: 'Calcular custo', color: '#E3F2FD' },
-          { icon: '📋', label: 'Orçamento', desc: 'Novo orçamento', color: '#E8F5E9' },
-          { icon: '👤', label: 'Cliente', desc: 'Novo cliente', color: '#FFF3E0' },
-          { icon: '📦', label: 'Pedido', desc: 'Novo pedido', color: '#F3E5F5' },
-        ].map((action, i) => (
-          <button 
-            key={i}
-            className="card p-4 text-center hover:shadow-lg transition-all cursor-pointer"
-            style={{ border: 'none' }}
-          >
-            <div 
-              className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl mx-auto mb-3"
-              style={{ background: action.color }}
-            >
-              {action.icon}
-            </div>
-            <p className="font-semibold text-gray-900">{action.label}</p>
-            <p className="text-xs text-gray-500">{action.desc}</p>
-          </button>
-        ))}
       </div>
     </div>
   );
