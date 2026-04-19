@@ -39,9 +39,9 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="mt-4 text-gray-600">Carregando...</p>
         </div>
       </div>
@@ -50,259 +50,307 @@ export default function Dashboard() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center text-gray-500">
-          <div className="text-4xl mb-4">📊</div>
-          <p>Erro ao carregar dados do dashboard</p>
+          <div className="text-5xl mb-4">📊</div>
+          <p>Erro ao carregar dados</p>
         </div>
       </div>
     );
   }
 
-  const cards = [
+  const kpis = [
     {
       label: 'Clientes',
       value: data.clients,
       icon: '👥',
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600'
+      color: 'blue',
+      change: '+12%',
+      positive: true
     },
     {
       label: 'Orçamentos',
       value: data.budgets.total,
       sublabel: `${data.budgets.approved} aprovados`,
       icon: '📋',
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-600',
+      color: 'purple',
       value2: `R$ ${(data.budgets.value / 1000).toFixed(1)}k`
     },
     {
       label: 'Pedidos',
       value: data.orders.total,
       icon: '📦',
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-600',
+      color: 'green',
       value2: `R$ ${(data.orders.value / 1000).toFixed(1)}k`
     },
     {
       label: 'Faturamento',
       value: `R$ ${(data.financial.income / 1000).toFixed(1)}k`,
       icon: '💰',
-      color: 'from-emerald-500 to-emerald-600',
-      bgColor: 'bg-emerald-50',
-      textColor: 'text-emerald-600'
+      color: 'emerald',
+      change: '+8%',
+      positive: true
     }
   ];
 
-  const statusColors: Record<string, string> = {
-    DRAFT: 'bg-gray-100 text-gray-700',
-    SENT: 'bg-blue-100 text-blue-700',
-    APPROVED: 'bg-green-100 text-green-700',
-    REJECTED: 'bg-red-100 text-red-700',
-    PENDING: 'bg-yellow-100 text-yellow-700',
-    IN_PRODUCTION: 'bg-orange-100 text-orange-700',
-    READY: 'bg-teal-100 text-teal-700',
-    COMPLETED: 'bg-emerald-100 text-emerald-700'
+  const statusConfig: Record<string, { bg: string; text: string }> = {
+    DRAFT: { bg: '#F0F2F5', text: '#718096' },
+    SENT: { bg: '#E3F2FD', text: '#1976D2' },
+    APPROVED: { bg: '#E8F5E9', text: '#388E3C' },
+    REJECTED: { bg: '#FFEBEE', text: '#D32F2F' },
+    PENDING: { bg: '#FFF3E0', text: '#F57C00' },
+    IN_PRODUCTION: { bg: '#E3F2FD', text: '#1976D2' },
+    READY: { bg: '#E8F5E9', text: '#388E3C' },
+    COMPLETED: { bg: '#F5F5F5', text: '#616161' }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">
-            Olá! Bem-vindo ao EsquadriAPI • {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
-          </p>
-        </div>
+    <div className="animate-fadeIn">
+      {/* Saudação */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900">
+          Olá, bom dia! 👋
+        </h2>
+        <p className="text-gray-600 mt-1">
+          {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
+        </p>
+      </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {cards.map((card, i) => (
-            <div key={i} className={`bg-gradient-to-br ${card.color} rounded-xl shadow-lg p-6 text-white`}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-white/80 text-sm font-medium">{card.label}</p>
-                  <p className="text-3xl font-bold mt-1">{card.value}</p>
-                  {card.sublabel && (
-                    <p className="text-white/70 text-sm mt-1">{card.sublabel}</p>
-                  )}
-                  {card.value2 && (
-                    <p className="text-white/90 text-lg font-semibold mt-1">{card.value2}</p>
-                  )}
-                </div>
-                <div className="text-4xl">{card.icon}</div>
-              </div>
+      {/* KPI Cards */}
+      <div className="kpi-grid mb-8">
+        {kpis.map((kpi, i) => (
+          <div key={i} className={`kpi-card ${kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' ? 'primary' : ''}`}
+            style={{
+              background: kpi.color === 'blue' ? 'linear-gradient(135deg, #1E88E5 0%, #1565C0 100%)' :
+                         kpi.color === 'purple' ? 'linear-gradient(135deg, #7E57C2 0%, #5E35B1 100%)' :
+                         kpi.color === 'emerald' ? 'linear-gradient(135deg, #26A69A 0%, #00897B 100%)' :
+                         kpi.color === 'green' ? 'linear-gradient(135deg, #66BB6A 0%, #43A047 100%)' : '#FFFFFF',
+              ...(kpi.color !== 'blue' && kpi.color !== 'purple' && kpi.color !== 'emerald' && kpi.color !== 'green' ? { 
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' 
+              } : {})
+            }}
+          >
+            <div className="kpi-icon" style={{
+              background: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green' 
+                ? 'rgba(255,255,255,0.2)' 
+                : '#F5F7FA'
+            }}>
+              {kpi.icon}
             </div>
-          ))}
-        </div>
+            <div className="kpi-label" style={{
+              color: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green'
+                ? 'rgba(255,255,255,0.8)'
+                : '#718096'
+            }}>
+              {kpi.label}
+            </div>
+            <div className="kpi-value" style={{
+              color: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green'
+                ? '#FFFFFF'
+                : '#1A202C'
+            }}>
+              {kpi.value}
+            </div>
+            {kpi.sublabel && (
+              <div className="text-sm mt-1" style={{
+                color: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green'
+                  ? 'rgba(255,255,255,0.7)'
+                  : '#718096'
+              }}>
+                {kpi.sublabel}
+              </div>
+            )}
+            {kpi.value2 && (
+              <div className="text-lg font-semibold mt-1" style={{
+                color: kpi.color === 'blue' || kpi.color === 'purple' || kpi.color === 'emerald' || kpi.color === 'green'
+                  ? 'rgba(255,255,255,0.9)'
+                  : '#1A202C'
+              }}>
+                {kpi.value2}
+              </div>
+            )}
+            {kpi.change && (
+              <div className={`kpi-change ${kpi.positive ? 'positive' : 'negative'}`} style={{
+                background: kpi.positive ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.2)',
+                color: '#FFFFFF'
+              }}>
+                {kpi.positive ? '↑' : '↓'} {kpi.change}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* financeiro */}
-          <div className="lg:col-span-1 bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span>💳</span> Resumo Financeiro
-            </h2>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-                <div>
-                  <p className="text-sm text-green-600 font-medium">Receitas</p>
-                  <p className="text-xl font-bold text-green-700">
-                    R$ {data.financial.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <span className="text-2xl">📈</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Resumo Financeiro */}
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">💳 Resumo Financeiro</h3>
+          </div>
+          <div className="card-body space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: '#E8F5E9' }}>
+              <div>
+                <p className="text-sm font-medium" style={{ color: '#2E7D32' }}>Receitas</p>
+                <p className="text-xl font-bold" style={{ color: '#1B5E20' }}>
+                  R$ {data.financial.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
               </div>
-              <div className="flex justify-between items-center p-4 bg-red-50 rounded-lg">
-                <div>
-                  <p className="text-sm text-red-600 font-medium">Despesas</p>
-                  <p className="text-xl font-bold text-red-700">
-                    R$ {data.financial.expenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <span className="text-2xl">📉</span>
+              <span className="text-2xl">📈</span>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: '#FFEBEE' }}>
+              <div>
+                <p className="text-sm font-medium" style={{ color: '#C62828' }}>Despesas</p>
+                <p className="text-xl font-bold" style={{ color: '#B71C1C' }}>
+                  R$ {data.financial.expenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
               </div>
-              <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                <div>
-                  <p className="text-sm text-blue-600 font-medium">Lucro</p>
-                  <p className="text-2xl font-bold text-blue-700">
-                    R$ {data.financial.profit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <span className="text-3xl">💵</span>
+              <span className="text-2xl">📉</span>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 rounded-xl border-2" style={{ background: '#E3F2FD', borderColor: '#1976D2' }}>
+              <div>
+                <p className="text-sm font-medium" style={{ color: '#1976D2' }}>Lucro</p>
+                <p className="text-2xl font-bold" style={{ color: '#0D47A1' }}>
+                  R$ {data.financial.profit.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
               </div>
-              <div className="flex justify-between items-center p-4 bg-yellow-50 rounded-lg">
-                <div>
-                  <p className="text-sm text-yellow-600 font-medium">A Receber</p>
-                  <p className="text-lg font-bold text-yellow-700">
-                    R$ {data.financial.pendingReceivable.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <span className="text-2xl">⏳</span>
+              <span className="text-3xl">💵</span>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 rounded-xl" style={{ background: '#FFF8E1' }}>
+              <div>
+                <p className="text-sm font-medium" style={{ color: '#F57C00' }}>A Receber</p>
+                <p className="text-lg font-bold" style={{ color: '#E65100' }}>
+                  R$ {data.financial.pendingReceivable.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
               </div>
+              <span className="text-2xl">⏳</span>
             </div>
           </div>
+        </div>
 
-          {/* Orçamentos Recentes */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <span>📋</span> Últimos Orçamentos
-              </h2>
-              <span className="text-sm text-blue-600 font-medium cursor-pointer hover:text-blue-800">Ver todos →</span>
-            </div>
-            <div className="divide-y">
-              {recentBudgets.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
-                  <div className="text-4xl mb-2">📋</div>
-                  <p>Nenhum orçamento ainda</p>
-                </div>
-              ) : recentBudgets.map(b => (
-                <div key={b.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-xl">
-                      📄
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{b.number}</p>
-                      <p className="text-sm text-gray-500">{b.client?.name || 'Sem cliente'} • {format(new Date(b.createdAt), 'dd/MM/yyyy')}</p>
-                    </div>
+        {/* Últimos Orçamentos */}
+        <div className="card lg:col-span-2">
+          <div className="card-header">
+            <h3 className="card-title">📋 Últimos Orçamentos</h3>
+            <button className="btn btn-sm btn-ghost">Ver todos →</button>
+          </div>
+          <div className="divide-y" style={{ borderColor: '#E2E8F0' }}>
+            {recentBudgets.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">
+                <div className="text-4xl mb-2">📋</div>
+                <p>Nenhum orçamento ainda</p>
+              </div>
+            ) : recentBudgets.map(b => (
+              <div key={b.id} className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl" style={{ background: '#E3F2FD' }}>
+                    📄
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">R$ {Number(b.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[b.status] || 'bg-gray-100'}`}>
-                      {b.status}
-                    </span>
+                  <div>
+                    <p className="font-semibold text-gray-900">{b.number}</p>
+                    <p className="text-sm text-gray-500">
+                      {b.client?.name || 'Sem cliente'} • {format(new Date(b.createdAt), 'dd/MM/yyyy')}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="text-right">
+                  <p className="font-bold text-gray-900">
+                    R$ {Number(b.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  <span 
+                    className="status-pill info text-xs"
+                    style={{
+                      background: statusConfig[b.status]?.bg || '#F0F2F5',
+                      color: statusConfig[b.status]?.text || '#718096'
+                    }}
+                  >
+                    {b.status}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Pedidos Recentes */}
-        <div className="mt-6 bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <span>🚚</span> Pedidos em Andamento
-            </h2>
-            <span className="text-sm text-blue-600 font-medium cursor-pointer hover:text-blue-800">Ver todos →</span>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
+      {/* Pedidos Recentes */}
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">🚚 Pedidos em Andamento</h3>
+          <button className="btn btn-sm btn-ghost">Ver todos →</button>
+        </div>
+        <div className="table-container" style={{ boxShadow: 'none', borderRadius: 0 }}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Cliente</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Entrega</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentOrders.length === 0 ? (
                 <tr>
-                  <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Número</th>
-                  <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Cliente</th>
-                  <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Valor</th>
-                  <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Status</th>
-                  <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Entrega</th>
+                  <td colSpan={5} className="text-center py-8 text-gray-500">
+                    <div className="text-4xl mb-2">📦</div>
+                    <p>Nenhum pedido ainda</p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y">
-                {recentOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                      <div className="text-4xl mb-2">📦</div>
-                      <p>Nenhum pedido ainda</p>
-                    </td>
-                  </tr>
-                ) : recentOrders.map(o => (
-                  <tr key={o.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">{o.number}</td>
-                    <td className="px-6 py-4 text-gray-700">{o.client?.name || 'Sem cliente'}</td>
-                    <td className="px-6 py-4 font-semibold text-gray-900">
-                      R$ {Number(o.totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[o.status] || 'bg-gray-100'}`}>
-                        {o.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 text-sm">
-                      {o.deliveryDate ? format(new Date(o.deliveryDate), 'dd/MM/yyyy') : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ) : recentOrders.map(o => (
+                <tr key={o.id}>
+                  <td className="font-semibold">{o.number}</td>
+                  <td>{o.client?.name || 'Sem cliente'}</td>
+                  <td className="font-bold">
+                    R$ {Number(o.totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </td>
+                  <td>
+                    <span 
+                      className="status-pill"
+                      style={{
+                        background: statusConfig[o.status]?.bg || '#F0F2F5',
+                        color: statusConfig[o.status]?.text || '#718096'
+                      }}
+                    >
+                      {o.status === 'IN_PRODUCTION' ? 'Em Produção' : o.status}
+                    </span>
+                  </td>
+                  <td className="text-gray-500">
+                    {o.deliveryDate ? format(new Date(o.deliveryDate), 'dd/MM/yyyy') : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        {/* Quick Actions */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button className="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all text-center group">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 group-hover:scale-110 transition-transform">
-              🧮
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        {[
+          { icon: '🧮', label: 'Calculadora', desc: 'Calcular custo', color: '#E3F2FD' },
+          { icon: '📋', label: 'Orçamento', desc: 'Novo orçamento', color: '#E8F5E9' },
+          { icon: '👤', label: 'Cliente', desc: 'Novo cliente', color: '#FFF3E0' },
+          { icon: '📦', label: 'Pedido', desc: 'Novo pedido', color: '#F3E5F5' },
+        ].map((action, i) => (
+          <button 
+            key={i}
+            className="card p-4 text-center hover:shadow-lg transition-all cursor-pointer"
+            style={{ border: 'none' }}
+          >
+            <div 
+              className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl mx-auto mb-3"
+              style={{ background: action.color }}
+            >
+              {action.icon}
             </div>
-            <p className="font-medium text-gray-900">Calculadora</p>
-            <p className="text-xs text-gray-500">Calcular custo</p>
+            <p className="font-semibold text-gray-900">{action.label}</p>
+            <p className="text-xs text-gray-500">{action.desc}</p>
           </button>
-          <button className="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all text-center group">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 group-hover:scale-110 transition-transform">
-              📋
-            </div>
-            <p className="font-medium text-gray-900">Orçamento</p>
-            <p className="text-xs text-gray-500">Novo orçamento</p>
-          </button>
-          <button className="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all text-center group">
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 group-hover:scale-110 transition-transform">
-              👤
-            </div>
-            <p className="font-medium text-gray-900">Cliente</p>
-            <p className="text-xs text-gray-500">Novo cliente</p>
-          </button>
-          <button className="p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all text-center group">
-            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 group-hover:scale-110 transition-transform">
-              📦
-            </div>
-            <p className="font-medium text-gray-900">Pedido</p>
-            <p className="text-xs text-gray-500">Novo pedido</p>
-          </button>
-        </div>
+        ))}
       </div>
     </div>
   );
