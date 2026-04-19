@@ -1,6 +1,4 @@
-// EsquadriAPI - Prisma Schema
-// Sistema completo para gestão de esquadrias de alumínio
-
+// EsquadriAPI - Schema Completo com Módulo de Cálculo
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,25 +15,18 @@ datasource db {
 model Organization {
   id        String   @id @default(uuid())
   name      String
-  domain    String? // domínio da empresa (subdomain)
   plan      Plan     @default(STARTER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   users        User[]
   clients      Client[]
-  products     Product[]
-  profiles     Profile[]
-  glasses      Glass[]
-  accessories  Accessory[]
+  productLines ProductLine[]
   budgets      Budget[]
   orders       Order[]
-  productions  Production[]
   transactions Transaction[]
   inventory    InventoryItem[]
   documents    Document[]
-  leads        Lead[]
-  tasks        Task[]
 
   @@map("organizations")
 }
@@ -50,7 +41,7 @@ enum Plan {
 model User {
   id             String       @id @default(uuid())
   email          String       @unique
-  password       String // hashed
+  password       String
   name           String
   role           Role         @default(VIEWER)
   organizationId String
@@ -58,10 +49,8 @@ model User {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  tasks          Task[]       @relation("Assignee")
-  budgetsCreated Budget[]     @relation("CreatedBy")
-  ordersCreated  Order[]      @relation("OrderCreator")
-  productions    Production[]
+  budgets Budget[] @relation("CreatedBy")
+  orders  Order[]  @relation("OrderCreator")
 
   @@map("users")
 }
@@ -71,25 +60,21 @@ enum Role {
   ADMIN
   MANAGER
   SALES
-  PRODUCTION
   FINANCE
   VIEWER
 }
 
 // ============================================
-// CLIENTES E CRM
+// CLIENTES E LEADS
 // ============================================
 
 model Client {
-  id           String        @id @default(uuid())
-  type         ClientType    @default(PF)
+  id           String     @id @default(uuid())
+  type         ClientType @default(PF)
   name         String
   email        String?
   phone        String?
-  document     String? // CPF ou CNPJ
-  documentType DocumentType?
-
-  // Endereço
+  document     String?
   street       String?
   number       String?
   complement   String?
@@ -98,17 +83,15 @@ model Client {
   state        String?
   zipCode      String?
 
-  // Metadata
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  budgets     Budget[]
-  orders      Order[]
-  leads       Lead[]
-  documents   Document[]
-  Transaction Transaction[]
+  budgets      Budget[]
+  orders       Order[]
+  transactions Transaction[]
+  Document     Document[]
 
   @@map("clients")
 }
@@ -118,157 +101,72 @@ enum ClientType {
   PJ
 }
 
-enum DocumentType {
-  CPF
-  CNPJ
-  RG
-  IE
-}
-
-model Lead {
-  id     String      @id @default(uuid())
-  name   String
-  email  String?
-  phone  String?
-  source LeadSource?
-  stage  LeadStage   @default(NEW)
-  score  Int         @default(0) // IA score
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  Client         Client?      @relation(fields: [clientId], references: [id])
-  clientId       String?
-  Task           Task[]
-
-  @@map("leads")
-}
-
-enum LeadSource {
-  WEBSITE
-  WHATSAPP
-  REFERRAL
-  FAIR
-  GOOGLE
-  INSTAGRAM
-  FACEBOOK
-  COLD_OUTREACH
-}
-
-enum LeadStage {
-  NEW
-  CONTACTED
-  QUALIFIED
-  PROPOSAL
-  NEGOTIATION
-  WON
-  LOST
-}
-
-model Task {
-  id          String     @id @default(uuid())
-  title       String
-  description String?
-  dueDate     DateTime?
-  priority    Priority   @default(MEDIUM)
-  status      TaskStatus @default(PENDING)
-
-  assigneeId String?
-  assignee   User?   @relation("Assignee", fields: [assigneeId], references: [id])
-
-  leadId String?
-  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-
-  @@map("tasks")
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  DONE
-  CANCELLED
-}
-
 // ============================================
-// PRODUTOS E MATERIAIS
+// LINHAS DE PRODUTO E COMPONENTES
 // ============================================
 
-model Product {
-  id          String      @id @default(uuid())
-  code        String
-  name        String
-  description String?
-  type        ProductType
-  basePrice   Decimal     @db.Decimal(12, 2)
-  isActive    Boolean     @default(true)
+model ProductLine {
+  id       String  @id @default(uuid())
+  name     String // "Suprema Classic", "Gold"
+  supplier String // "Alumasa", "Cadan"
+  isActive Boolean @default(true)
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  budgetItems BudgetItem[]
-  orderItems  OrderItem[]
-  tipologies  Tipology[]
+  profiles    Profile[]
+  glasses     Glass[]
+  accessories Accessory[]
+  typologies  Typology[]
 
-  @@map("products")
-}
-
-enum ProductType {
-  WINDOW
-  DOOR
-  FACADE
-  PORTAL
-  GLASS_PARTITION
-  CUSTOM
+  @@map("product_lines")
 }
 
 model Profile {
-  id         String  @id @default(uuid())
-  code       String
-  name       String
-  supplier   String?
-  weight     Decimal @db.Decimal(8, 3) // kg/m
-  color      String?
-  finish     String? // anodizado, pintado, etc
-  length     Decimal @db.Decimal(10, 2) // mm
-  pricePerKg Decimal @db.Decimal(10, 2)
-  isActive   Boolean @default(true)
+  id             String          @id @default(uuid())
+  code           String // "TRL-INF", "VER-EXT"
+  name           String // "Trilho Inferior 38mm"
+  category       ProfileCategory
+  weightPerMeter Decimal         @db.Decimal(8, 3) // kg/m
+  length         Decimal         @default(6000) // mm (barra comercial)
+  pricePerKg     Decimal         @db.Decimal(10, 2)
 
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  productLineId String
+  productLine   ProductLine @relation(fields: [productLineId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  typologyProfiles TypologyProfile[]
 
   @@map("profiles")
 }
 
-model Glass {
-  id              String    @id @default(uuid())
-  code            String
-  name            String
-  type            GlassType
-  thickness       Decimal   @db.Decimal(5, 2) // mm
-  pricePerSqMeter Decimal   @db.Decimal(10, 2)
-  isActive        Boolean   @default(true)
+enum ProfileCategory {
+  TRACK_LOWER
+  TRACK_UPPER
+  VERTICAL
+  HORIZONTAL
+  INTERMEDIATE
+  LASTER
+  FRAME
+  STILE
+  RAIL
+}
 
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+model Glass {
+  id         String    @id @default(uuid())
+  code       String // "VIC-4", "TEM-6"
+  name       String // "Vidro Incolor 4mm"
+  type       GlassType
+  thickness  Decimal   @db.Decimal(5, 2) // mm
+  pricePerM2 Decimal   @db.Decimal(10, 2)
+
+  productLineId String
+  productLine   ProductLine @relation(fields: [productLineId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@map("glasses")
 }
@@ -280,31 +178,30 @@ enum GlassType {
   LOW_E
   REFLECTIVE
   ACOUSTIC
-  DOUBLE
 }
 
 model Accessory {
-  id        String            @id @default(uuid())
-  code      String
-  name      String
-  category  AccessoryCategory
-  supplier  String?
-  unitPrice Decimal           @db.Decimal(10, 2)
-  unit      String            @default("un") // un, m, kg
-  isActive  Boolean           @default(true)
+  id           String            @id @default(uuid())
+  code         String // "ROL-01", "FEC-02"
+  name         String // "Roldana 25mm Dupla"
+  category     AccessoryCategory
+  unit         String            @default("un")
+  pricePerUnit Decimal           @db.Decimal(10, 2)
 
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  productLineId String
+  productLine   ProductLine @relation(fields: [productLineId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  typologyAccessories TypologyAccessory[]
 
   @@map("accessories")
 }
 
 enum AccessoryCategory {
+  ROLLER
   LOCK
   HINGE
-  ROLLER
   BRUSH
   HANDLE
   CLOSER
@@ -314,68 +211,114 @@ enum AccessoryCategory {
   OTHER
 }
 
-model Tipology {
-  id          String      @id @default(uuid())
-  code        String
-  name        String
-  productType ProductType
-  width       Decimal     @db.Decimal(10, 2) // mm
-  height      Decimal     @db.Decimal(10, 2) // mm
-  formula     String? // fórmula de cálculo
+// ============================================
+// TIPOLOGIAS
+// ============================================
 
-  // Composição
-  profileId String?
-  glassId   String?
+model Typology {
+  id   String  @id @default(uuid())
+  code String // "JC-2F", "PG-1F"
+  name String // "Janela Correr 2 Folhas"
+  type String // JC, JA, JM, PG, PP, PC, PF, FC, DV
+  icon String? // emoji ou SVG path
 
-  // Preço base
-  baseCost  Decimal @db.Decimal(12, 2)
-  laborCost Decimal @default(0) @db.Decimal(10, 2)
+  // Configurações padrão
+  defaultHeight Int? // altura padrão em mm
+  defaultWidth  Int? // largura padrão em mm
 
-  // Imagem/3D
-  imageUrl String?
-  svgData  String? // SVG do desenho técnico
+  productLineId String
+  productLine   ProductLine @relation(fields: [productLineId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-  productId String?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  profiles     TypologyProfile[]
+  accessories  TypologyAccessory[]
+  calculations Calculation[]
 
-  isActive   Boolean      @default(true)
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  BudgetItem BudgetItem[]
-  OrderItem  OrderItem[]
+  @@map("typologies")
+}
 
-  @@map("tipologies")
+model TypologyProfile {
+  id String @id @default(uuid())
+
+  typologyId String
+  typology   Typology @relation(fields: [typologyId], references: [id], onDelete: Cascade)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  // Fórmula em JavaScript: "height * 2 + width * 2"
+  formula   String
+  // Margem de corte em mm
+  cutMargin Int    @default(0)
+
+  @@unique([typologyId, profileId])
+  @@map("typology_profiles")
+}
+
+model TypologyAccessory {
+  id String @id @default(uuid())
+
+  typologyId String
+  typology   Typology @relation(fields: [typologyId], references: [id], onDelete: Cascade)
+
+  accessoryId String
+  accessory   Accessory @relation(fields: [accessoryId], references: [id], onDelete: Cascade)
+
+  // Fórmula: "2" (fixo) ou "height / 600" (variável)
+  formula String
+  // Quantidade mínima
+  minQty  Int    @default(1)
+
+  @@unique([typologyId, accessoryId])
+  @@map("typology_accessories")
 }
 
 // ============================================
-// ORÇAMENTOS
+// CÁLCULOS E ORÇAMENTOS
 // ============================================
+
+model Calculation {
+  id String @id @default(uuid())
+
+  typologyId String
+  typology   Typology @relation(fields: [typologyId], references: [id])
+
+  // Dimensões
+  width    Int
+  height   Int
+  quantity Int
+
+  // Opções
+  options String? // JSON com opções (tipo vidro, tela, etc)
+
+  // Resultados JSON
+  resultJson Json
+
+  // Totais
+  totalCost Decimal @db.Decimal(12, 2)
+  salePrice Decimal @db.Decimal(12, 2)
+
+  createdAt DateTime @default(now())
+
+  @@map("calculations")
+}
 
 model Budget {
   id     String       @id @default(uuid())
-  number String       @unique // Orçamentos: ORÇ-2024-00001
+  number String       @unique
   status BudgetStatus @default(DRAFT)
 
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
-  // Valores
-  subtotal     Decimal      @db.Decimal(12, 2)
-  discount     Decimal      @default(0) @db.Decimal(12, 2)
-  discountType DiscountType @default(PERCENTAGE)
-  total        Decimal      @db.Decimal(12, 2)
+  subtotal Decimal @db.Decimal(12, 2)
+  discount Decimal @default(0) @db.Decimal(12, 2)
+  total    Decimal @db.Decimal(12, 2)
 
-  // Validade
   validityDays Int       @default(30)
   validUntil   DateTime?
-
-  // Notas
-  notes String?
-  terms String? // termos e condições
-
-  // Acesso
-  accessToken   String?   @unique // token para portal do cliente
-  accessExpires DateTime?
+  notes        String?
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -387,7 +330,6 @@ model Budget {
   updatedAt DateTime @updatedAt
 
   items BudgetItem[]
-  Order Order?
 
   @@map("budgets")
 }
@@ -395,16 +337,10 @@ model Budget {
 enum BudgetStatus {
   DRAFT
   SENT
-  VIEWED
   APPROVED
   REJECTED
   EXPIRED
   CONVERTED
-}
-
-enum DiscountType {
-  PERCENTAGE
-  VALUE
 }
 
 model BudgetItem {
@@ -412,68 +348,48 @@ model BudgetItem {
   budgetId String
   budget   Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
 
-  productId String?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  // Referência ao cálculo
+  calculationId String?
 
-  tipologyId String?
-  tipology   Tipology? @relation(fields: [tipologyId], references: [id], onDelete: SetNull)
-
-  // Descrição
   description String
-  quantity    Int    @default(1)
-
-  // Dimensões
-  width  Decimal? @db.Decimal(10, 2)
-  height Decimal? @db.Decimal(10, 2)
-
-  // Preços
-  unitPrice  Decimal @db.Decimal(12, 2)
-  totalPrice Decimal @db.Decimal(12, 2)
-
-  // Observações
-  notes String?
+  quantity    Int
+  width       Int?
+  height      Int?
+  unitPrice   Decimal @db.Decimal(12, 2)
+  totalPrice  Decimal @db.Decimal(12, 2)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@map("budget_items")
 }
 
 // ============================================
-// PEDIDOS E PRODUÇÃO
+// PEDIDOS
 // ============================================
 
 model Order {
   id     String      @id @default(uuid())
-  number String      @unique // PED-2024-00001
+  number String      @unique
   status OrderStatus @default(PENDING)
 
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
-  budgetId String? @unique
-  budget   Budget? @relation(fields: [budgetId], references: [id], onDelete: SetNull)
-
-  // Valores
   totalValue Decimal @db.Decimal(12, 2)
   paidValue  Decimal @default(0) @db.Decimal(12, 2)
 
-  // Datas
-  deliveryDate     DateTime?
-  installationDate DateTime?
-
-  // Responsável
-  createdById String
-  createdBy   User   @relation("OrderCreator", fields: [createdById], references: [id])
+  deliveryDate DateTime?
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  createdById String
+  createdBy   User   @relation("OrderCreator", fields: [createdById], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  items       OrderItem[]
-  productions Production[]
+  items OrderItem[]
 
   @@map("orders")
 }
@@ -493,81 +409,16 @@ model OrderItem {
   orderId String
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  productId String?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-
-  tipologyId String?
-  tipology   Tipology? @relation(fields: [tipologyId], references: [id], onDelete: SetNull)
-
   description String
-  quantity    Int     @default(1)
+  quantity    Int
+  width       Int?
+  height      Int?
   unitPrice   Decimal @db.Decimal(12, 2)
   totalPrice  Decimal @db.Decimal(12, 2)
 
-  // Status individual
-  status OrderItemStatus @default(PENDING)
-
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@map("order_items")
-}
-
-enum OrderItemStatus {
-  PENDING
-  CUT
-  ASSEMBLY
-  QUALITY
-  READY
-  INSTALLED
-}
-
-model Production {
-  id      String @id @default(uuid())
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  // Etapas de produção
-  stage  ProductionStage  @default(CUTTING)
-  status ProductionStatus @default(PENDING)
-
-  // Dados técnicos
-  cutList Json? // lista de cortes otimizados
-  gCode   String? // código para CNC
-
-  // Tempo estimado
-  estimatedMinutes Int?
-  startedAt        DateTime?
-  finishedAt       DateTime?
-
-  // Responsável
-  operatorId String?
-  operator   User?   @relation(fields: [operatorId], references: [id])
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("productions")
-}
-
-enum ProductionStage {
-  CUTTING
-  MACHINING
-  ASSEMBLY
-  GLAZING
-  HARDWARE
-  QUALITY
-  PACKAGING
-}
-
-enum ProductionStatus {
-  PENDING
-  IN_PROGRESS
-  DONE
-  ISSUE
 }
 
 // ============================================
@@ -575,32 +426,17 @@ enum ProductionStatus {
 // ============================================
 
 model Transaction {
-  id       String              @id @default(uuid())
-  type     TransactionType
-  category TransactionCategory
-
+  id          String              @id @default(uuid())
+  type        TransactionType
+  category    TransactionCategory
   description String
-  amount      Decimal @db.Decimal(12, 2)
+  amount      Decimal             @db.Decimal(12, 2)
+  dueDate     DateTime?
+  paidDate    DateTime?
+  status      TransactionStatus   @default(PENDING)
 
-  // Data
-  dueDate  DateTime?
-  paidDate DateTime?
-
-  // Status
-  status TransactionStatus @default(PENDING)
-
-  // Documento
-  documentNumber String?
-  documentUrl    String?
-
-  // Classificação
-  costCenter String? // obra, cliente, produto
-
-  // Relacionamentos
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
-
-  orderId String?
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -626,8 +462,6 @@ enum TransactionCategory {
   UTILITY
   SALARY
   TAX
-  INSURANCE
-  MARKETING
   OTHER
 }
 
@@ -636,7 +470,6 @@ enum TransactionStatus {
   PAID
   OVERDUE
   CANCELLED
-  PARTIAL
 }
 
 // ============================================
@@ -644,23 +477,17 @@ enum TransactionStatus {
 // ============================================
 
 model InventoryItem {
-  id       String            @id @default(uuid())
-  code     String
-  name     String
-  category InventoryCategory
-
-  // Estoque
-  quantity Decimal @default(0) @db.Decimal(10, 3)
-  unit     String  @default("un")
-
-  // Controle
-  minQuantity Decimal? @db.Decimal(10, 3)
-  maxQuantity Decimal? @db.Decimal(10, 3)
-  location    String? // Prateleira A-1, etc
-
-  // Preço
-  costPrice Decimal? @db.Decimal(10, 2)
-  salePrice Decimal? @db.Decimal(10, 2)
+  id          String            @id @default(uuid())
+  code        String
+  name        String
+  category    InventoryCategory
+  quantity    Decimal           @default(0) @db.Decimal(10, 3)
+  unit        String            @default("un")
+  minQuantity Decimal?          @db.Decimal(10, 3)
+  maxQuantity Decimal?          @db.Decimal(10, 3)
+  location    String?
+  costPrice   Decimal?          @db.Decimal(10, 2)
+  salePrice   Decimal?          @db.Decimal(10, 2)
 
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -682,25 +509,18 @@ enum InventoryCategory {
 }
 
 // ============================================
-// DOCUMENTOS E CONTRATOS
+// DOCUMENTOS
 // ============================================
 
 model Document {
-  id          String  @id @default(uuid())
+  id          String    @id @default(uuid())
   type        DocType
   name        String
   description String?
+  fileUrl     String?
+  validFrom   DateTime?
+  validUntil  DateTime?
 
-  // Arquivo
-  fileUrl  String?
-  fileSize Int?
-  mimeType String?
-
-  // Validade
-  validFrom  DateTime?
-  validUntil DateTime?
-
-  // Cliente
   clientId String?
   client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
@@ -719,28 +539,5 @@ enum DocType {
   INVOICE
   RECEIPT
   CERTIFICATE
-  LICENSE
-  RG
-  CPF
-  CNPJ
-  COMPROVANTE
   OTHER
-}
-
-// ============================================
-// LOGS DE AUDITORIA
-// ============================================
-
-model AuditLog {
-  id             String   @id @default(uuid())
-  action         String // CREATE, UPDATE, DELETE
-  entity         String // Order, Budget, etc
-  entityId       String
-  changes        Json? // { field: [old, new] }
-  userId         String?
-  userEmail      String?
-  organizationId String
-  createdAt      DateTime @default(now())
-
-  @@map("audit_logs")
 }

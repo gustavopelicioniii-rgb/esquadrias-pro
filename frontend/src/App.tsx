@@ -77,14 +77,14 @@ function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard': return <Dashboard user={user} />;
-      case 'clients': return <Clients user={user} />;
-      case 'products': return <Products user={user} />;
-      case 'budgets': return <Budgets user={user} />;
-      case 'orders': return <Orders user={user} />;
-      case 'financial': return <Financial user={user} />;
-      case 'inventory': return <Inventory user={user} />;
-      default: return <Dashboard user={user} />;
+      case 'dashboard': return <Dashboard />;
+      case 'clients': return <Clients />;
+      case 'products': return <Products />;
+      case 'budgets': return <Budgets />;
+      case 'orders': return <Orders />;
+      case 'financial': return <Financial />;
+      case 'inventory': return <Inventory />;
+      default: return <Dashboard />;
     }
   };
 
