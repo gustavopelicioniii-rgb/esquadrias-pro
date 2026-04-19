@@ -10,11 +10,13 @@ import Budgets from './pages/Budgets';
 import Orders from './pages/Orders';
 import Financial from './pages/Financial';
 import Inventory from './pages/Inventory';
+import Calculator from './pages/Calculator';
+import Materials from './pages/Materials';
 
 // Ícones
 import { 
   LayoutDashboard, Users, Package, FileText, ShoppingCart, 
-  DollarSign, Box, LogOut, Menu, X 
+  DollarSign, Box, LogOut, Menu, X, Calculator as CalcIcon
 } from 'lucide-react';
 
 function App() {
@@ -69,6 +71,8 @@ function App() {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'clients', label: 'Clientes', icon: Users },
     { id: 'products', label: 'Produtos', icon: Package },
+    { id: 'materials', label: 'Materiais', icon: Package },
+    { id: 'calculator', label: 'Calculadora', icon: CalcIcon },
     { id: 'budgets', label: 'Orçamentos', icon: FileText },
     { id: 'orders', label: 'Pedidos', icon: ShoppingCart },
     { id: 'financial', label: 'Financeiro', icon: DollarSign },
@@ -80,6 +84,8 @@ function App() {
       case 'dashboard': return <Dashboard />;
       case 'clients': return <Clients />;
       case 'products': return <Products />;
+      case 'materials': return <Materials />;
+      case 'calculator': return <Calculator />;
       case 'budgets': return <Budgets />;
       case 'orders': return <Orders />;
       case 'financial': return <Financial />;

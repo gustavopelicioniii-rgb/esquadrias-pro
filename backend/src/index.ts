@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import calculationRoutes from './routes/calculation';
+import publicRoutes from './routes/public';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -358,6 +359,11 @@ app.post('/api/inventory', authenticate, async (req: any, res) => {
 // ============================================
 
 app.use('/api/calculate', calculationRoutes);
+
+// ROTAS PÚBLICAS (Portal do Cliente)
+// ============================================
+
+app.use('/api/public', publicRoutes);
 
 // ============================================
 // HEALTH CHECK
